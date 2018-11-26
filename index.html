@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>클라우드 컴퓨팅 기술</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<!-- Popper JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+<div class="row container-fluid">
+<div class="col-md-3">
+    <div id="item_list" class="list-group"></div>
+</div>
+
+<div class="col-md-9">
+    <frame name="content">왼쪽 목록에서 항목을 선택해주세요.</frame>
+</div>
+</div>
+
+<script type="text/javascript">
+const item_list = document.getElementById('item_list');
+let cur_idx = 0;
+let cur_id = -1;
+
+show_list();
+
+
+function onclick_add(view, parent) {
+
+}
+
+function onclick_edit(view, parent) {
+    
+}
+
+function onclick_remove(view, parent) {
+    
+}
+
+function onclick_list_item(view, idx, id) {
+    item_list.children[cur_idx].classList.remove('active');
+    view.classList.add('active');
+    cur_idx = idx;
+    cur_id = id;
+}
+
+
+/* server connection */
+function connect(type, dest, callback) {
+    let xmlhttp;
+    if (window.XMLHttpRequest)
+        xmlhttp = new XMLHttpRequest(); // code for modern browsers
+    else
+        xmlhttp = new ActiveXObject("Microsoft.XMLHTTP"); // code for old IE browsers
+
+    xmlhttp.onreadystatechange = function() {
+        callback(xmlhttp.readyState, xmlhttp.status, xmlhttp.response);
+    };
+
+    xmlhttp.open(type, dest, true); //open url
+    xmlhttp.send();
+}
+
+function show_list() {
+    const dest = `itemlist.php`;
+    connect("GET", dest, function(readyState, status, response) {
+            view.disabled = false;
+            if (readyState != 4 || status != 200) return;
+            item_list.innerHTML = this.responseText;
+        });
+}
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,38 @@
+{
+    "name": "myfavorite",
+    "version": "1.0.0",
+    "description": "My project deployed at AWS EC2. Persist web page's 'title, URL's in AWS RDS and read them on everywhere.",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/dragon20002/my-favorite.git"
+    },
+    "keywords": [
+        "my-favorite"
+    ],
+    "author": "haruu",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/dragon20002/my-favorite/issues"
+    },
+    "homepage": "https://github.com/dragon20002/my-favorite#readme",
+    "dependencies": {
+        "async": "^2.6.1",
+        "aws": "0.0.3-2",
+        "aws-sdk": "^2.357.0",
+        "body-parser": "latest",
+        "buffer": "^5.2.1",
+        "cheerio": "^1.0.0-rc.2",
+        "ejs": "latest",
+        "express": "latest",
+        "formidable": "^1.2.1",
+        "mysql": "^2.16.0",
+        "npm": "^6.4.1",
+        "request": "^2.88.0",
+        "rxjs": "^6.3.3"
+    }
+}
