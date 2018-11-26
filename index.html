@@ -13,27 +13,63 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"></script>
 <!-- Latest compiled JavaScript -->
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"></script>
+<!--  -->
+<link rel='stylesheet' href='https://use.fontawesome.com/releases/v5.5.0/css/all.css' integrity='sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU' crossorigin='anonymous'>
+
+<style type="text/css">
+    html, body { height: 100%; overflow: hidden }
+    #item_list a {
+        font-size: 14px;
+        height: 40px;
+        overflow: hidden;
+    }
+</style>
 </head>
 
 <body>
 
-<div class="row container-fluid">
-<div class="col-md-3">
-    <div id="item_list" class="list-group"></div>
-</div>
+<div class="row container-fluid" style="height: 100%">
+    <div id="left_menu_btn" class="btn btn-primary" onclick="toggle_list_menu()" style="height: 48px; float: left; position: absolute"><i class='fas fa-align-justify' style='font-size: 36px; color: white'></i></div>
+    <div id="left_menu" style="width: 25%; height: 100%; z-index: 5">
+        <div id="item_list" class="list-group"></div>
+    </div>
 
-<div class="col-md-9">
-    <frame name="content">왼쪽 목록에서 항목을 선택해주세요.</frame>
-</div>
+    <div id="main" style="width: 75%; height: 90%">
+        <h2><div id="main_title" align="center"></div></h2>
+        <a id="main_url" target="_blank"></a>
+        <iframe name="content" style="width: 100%; height: 90%" sandbox = "allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"  frameborder="0" allow="encrypted-media" allowfullscreen></iframe>
+    </div>
 </div>
 
 <script type="text/javascript">
+const left_menu_btn = document.getElementById('left_menu_btn');
+const left_menu = document.getElementById('left_menu');
 const item_list = document.getElementById('item_list');
+const main = document.getElementById('main');
+const main_title = document.getElementById('main_title');
+const main_url = document.getElementById('main_url');
 let cur_idx = 0;
 let cur_id = -1;
+let cur_title = "";
+let cur_url = "";
 
 show_list();
 
+
+/* for dynamic css */
+let max_width_match = window.matchMedia("(max-width: 768px)");
+max_width_match.addListener(match_media);
+match_media(max_width_match); //apply now
+
+
+/* event listener */
+function toggle_list_menu() {
+    if (left_menu.style.visibility === "visible") {
+        left_menu.style.visibility = "hidden";
+    } else {
+        left_menu.style.visibility = "visible";
+    }
+}
 
 function onclick_add(view, parent) {
 
@@ -47,11 +83,40 @@ function onclick_remove(view, parent) {
     
 }
 
-function onclick_list_item(view, idx, id) {
+function onclick_list_item(view, idx, id, title, url) {
     item_list.children[cur_idx].classList.remove('active');
     view.classList.add('active');
     cur_idx = idx;
+
     cur_id = id;
+    cur_title = title;
+    cur_url = url;
+
+    main_title.innerHTML = title;
+    main_url.href = url;
+    main_url.innerHTML = "새 창에서 보기";
+}
+
+function match_media(cond) {
+    if (cond.matches) {
+        left_menu_btn.style.display = "block";
+        left_menu.style.visibility = "hidden";
+        left_menu.style.position = "absolute";
+            left_menu.style.top = "50px";
+        left_menu.style.float = "left";
+        main.style.width = "100%";
+        main.style.position = "absolute";
+            main.style.top = "50px";
+        main.style.float = "left";
+    } else {
+        left_menu_btn.style.display = "none";
+        left_menu.style.visibility = "visible";
+        left_menu.style.position = "static";
+        left_menu.style.float = "none";
+        main.style.width = "75%";
+        main.style.position = "static";
+        main.style.float = "none";
+    }
 }
 
 
@@ -74,9 +139,8 @@ function connect(type, dest, callback) {
 function show_list() {
     const dest = `itemlist.php`;
     connect("GET", dest, function(readyState, status, response) {
-            view.disabled = false;
             if (readyState != 4 || status != 200) return;
-            item_list.innerHTML = this.responseText;
+            item_list.innerHTML = response;
         });
 }
 

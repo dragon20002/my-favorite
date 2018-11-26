@@ -1,6 +1,6 @@
 <?php
 include "../inc/dbinfo.inc";
-$tablename = "webpage";
+define('TABLE_NAME', 'webpage');
 
 
 /* Connect to MySQL and select the database. */
@@ -10,7 +10,7 @@ if (mysqli_connect_errno()) echo "Failed to connect to MySQL: " . mysqli_connect
 
 $database = mysqli_select_db($connection, DB_DATABASE);
 
-VerifyEmployeesTable($connection, DB_DATABASE); // Ensure that the Employees table exists.
+verifyTable($connection); // Ensure that the Employees table exists.
 
 
 /* Routing */
@@ -31,18 +31,14 @@ else if (strlen($webpage_id)) {
 	removeWebPage($webpage_id);
 }
 
-$query = "SELECT * FROM '$tablename';";
+$query = "SELECT * FROM ".TABLE_NAME.";";
 
 $result = mysqli_query($connection, $query); 
 
 $i = 0;
 while($query_data = mysqli_fetch_row($result)) {
-	if ($i == 0) {
-		echo "<a href={$query_data[2]} target="content" class="list-group-item list-group-item-primary-action active" onclick="onclick_list_item(this, {$i}, {$query_data[0]})">{$query_data[1]}</a>";
-	} else {
-		echo "<a href={$query_data[2]} target="content" class="list-group-item list-group-item-primary-action" onclick="onclick_list_item(this, {$i}, {$query_data[0]})">{$query_data[1]}</a>";
-	}
-	$i = $i + 1;
+	echo "<a href='$query_data[2]' target='content' class='list-group-item list-group-item-primary-action' onclick='onclick_list_item(this, $i, $query_data[0], \"$query_data[1]\", \"$query_data[2]\")'>$query_data[1]</a>";
+	$i++;
 }
 
 
@@ -57,7 +53,7 @@ function addWebPage($connection, $title, $url) {
 	$t = mysqli_real_escape_string($connection, $title);
 	$u = mysqli_real_escape_string($connection, $url);
 
-	$query = "INSERT INTO '$tablename' (`title`, `url`) VALUES ('$t', '$u');";
+	$query = "INSERT INTO ".TABLE_NAME." ('title', 'url') VALUES ('$t', '$u');";
 
 	if(!mysqli_query($connection, $query)) echo("<p>Error adding data.</p>");
 }
@@ -66,39 +62,38 @@ function editWebPage($connection, $id, $title, $url) {
 	$t = mysqli_real_escape_string($connection, $title);
 	$u = mysqli_real_escape_string($connection, $url);
 
-	$query = "UPDATE '$tablename' SET `title`='$t', `url`='$u' WHERE id = '$id';";
+	$query = "UPDATE ".TABLE_NAME." SET 'title'='$t', 'url'='$u' WHERE id = '$id';";
 
 	if(!mysqli_query($connection, $query)) echo("<p>Error adding data.</p>");
 }
 
 function removeWebPage($connection, $id) {
-	$query = "DELETE FROM '$tablename' WHERE id = '$id';";
+	$query = "DELETE FROM ".TABLE_NAME." WHERE id = '$id';";
 
 	if(!mysqli_query($connection, $query)) echo("<p>Error deleting data.</p>");
 }
 
 /* Check whether the table exists and, if not, create it. */
-function VerifyEmployeesTable($connection) {
-	if(!TableExists($tablename, $connection, DB_DATABASE)) 
+function verifyTable($connection) {
+	if(!tableExists($connection)) 
 	{
-		$query = "CREATE TABLE '$tablename' (
-			`title` varchar(45) DEFAULT NULL,
-			`url` varchar(90) DEFAULT NULL,
-			PRIMARY KEY (`id`),
-			UNIQUE KEY `ID_UNIQUE` (`id`)
-		);";
+		$query = "CREATE TABLE `".TABLE_NAME."` (
+			`id` int(11) not null auto_increment,
+			`title` varchar(255) not null,
+			`url` varchar(255) not null,
+			primary key (`id`));";
 
 		if(!mysqli_query($connection, $query)) echo("<p>Error creating table.</p>");
 	}
 }
 
 /* Check for the existence of a table. */
-function TableExists($connection) {
-	$t = mysqli_real_escape_string($connection, $tablename);
+function tableExists($connection) {
+	$t = mysqli_real_escape_string($connection, TABLE_NAME);
 	$d = mysqli_real_escape_string($connection, DB_DATABASE);
 
 	$checktable = mysqli_query($connection, 
-		"SELECT '$tablename' FROM information_schema.TABLES WHERE '$tablename' = '$t' AND TABLE_SCHEMA = '$d'");
+		"SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_NAME = '$t' AND TABLE_SCHEMA = '$d'");
 
 	if(mysqli_num_rows($checktable) > 0) return true;
 
