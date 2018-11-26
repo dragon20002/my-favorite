@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
 <title>클라우드 컴퓨팅 기술</title>
 <meta charset="utf-8">
@@ -23,13 +23,19 @@
         height: 40px;
         overflow: hidden;
     }
+    .dropdown-toggle::after {
+        display: none;
+    }
+    #right_menu_btn a {
+        font-size: 14px;
+    }
 </style>
 </head>
 
 <body>
 
 <div class="row container-fluid" style="height: 100%">
-    <div id="left_menu_btn" class="btn btn-primary" onclick="toggle_list_menu()" style="height: 48px; float: left; position: absolute"><i class='fas fa-align-justify' style='font-size: 36px; color: white'></i></div>
+    <div id="left_menu_btn" class="btn btn-primary" onclick="toggle_list_menu()" style="height: 48px; position: absolute"><i class='fas fa-align-justify' style='font-size: 36px; color: white'></i></div>
     <div id="left_menu" style="width: 25%; height: 100%; z-index: 5">
         <div id="item_list" class="list-group"></div>
     </div>
@@ -39,7 +45,111 @@
         <a id="main_url" target="_blank"></a>
         <iframe name="content" style="width: 100%; height: 90%" sandbox = "allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation"  frameborder="0" allow="encrypted-media" allowfullscreen></iframe>
     </div>
+
+    <div class="dropdown" style="height: 48px; position: absolute; right: 0px">
+        <button id="right_menu_btn" class="btn btn-outline-primary dropdown-toggle" type="button" data-toggle="dropdown"><i class='fas fa-ellipsis-v' style='font-size:36px; color: rgb(16, 89, 248)'></i></button>
+        <div class="dropdown-menu dropdown-menu-right">
+            <a class="dropdown-item" data-toggle="modal" data-target="#add_modal">새로운 URL 추가</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" data-toggle="modal" data-target="#edit_modal">현재 URL 수정</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" data-toggle="modal" data-target="#remove_modal">현재 URL 삭제</a>
+        </div>
+    </div>
 </div>
+
+<!-- Modals -->
+<div class="modal fade" id="add_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">URL 추가</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                새로운 사이트를 추가합니다.
+            </div>
+            <div class="form-group">
+                <label for="title">이름</label>
+                <input type="text" class="form-control" id="add_title">
+            </div>
+            <div class="form-group">
+                <label for="url">URL</label>
+                <input type="text" class="form-control" id="add_url">
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn" data-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="onclick_add()">추가</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="edit_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">URL 수정</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                현재 선택된 사이트를 수정합니다.
+            </div>
+            <div class="form-group">
+                <label for="title">이름</label>
+                <input type="text" class="form-control" id="edit_title">
+            </div>
+            <div class="form-group">
+                <label for="url">URL</label>
+                <input type="text" class="form-control" id="edit_url">
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn" data-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-warning" data-dismiss="modal" onclick="onclick_edit()">수정</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="remove_modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">URL 삭제</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <!-- Modal body -->
+            <div class="modal-body">
+                현재 선택된 사이트를 삭제합니다.
+            </div>
+
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn" data-dismiss="modal">취소</button>
+                <button type="button" class="btn btn-danger" data-dismiss="modal" onclick="onclick_remove()">삭제</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
 
 <script type="text/javascript">
 const left_menu_btn = document.getElementById('left_menu_btn');
@@ -48,10 +158,9 @@ const item_list = document.getElementById('item_list');
 const main = document.getElementById('main');
 const main_title = document.getElementById('main_title');
 const main_url = document.getElementById('main_url');
-let cur_idx = 0;
-let cur_id = -1;
-let cur_title = "";
-let cur_url = "";
+var cur_idx, cur_id, cur_title, cur_url;
+
+set_current_webpage(-1, -1, "", "");
 
 show_list();
 
@@ -62,6 +171,23 @@ max_width_match.addListener(match_media);
 match_media(max_width_match); //apply now
 
 
+function set_current_webpage(idx, id, title, url) {
+    if (cur_idx >= 0 && item_list.children[cur_idx] != null)
+        item_list.children[cur_idx].classList.remove('active');
+
+    cur_idx = idx;
+    cur_id = id;
+    cur_title = title;
+    cur_url = url;
+
+    main_title.innerHTML = title;
+    main_url.href = url;
+    if (title === "")
+        main_url.innerHTML = "";
+    else
+        main_url.innerHTML = "새 창에서 보기";
+}
+
 /* event listener */
 function toggle_list_menu() {
     if (left_menu.style.visibility === "visible") {
@@ -71,30 +197,31 @@ function toggle_list_menu() {
     }
 }
 
-function onclick_add(view, parent) {
-
+function onclick_add() {
+    let add_title = document.getElementById('add_title').value;
+    let add_url = document.getElementById('add_url').value;
+    if (add_title === "" || add_url === "") return;
+    
+    add_webpage(add_title, add_url);
 }
 
-function onclick_edit(view, parent) {
-    
+function onclick_edit() {
+    let edit_title = document.getElementById('edit_title').value;
+    let edit_url = document.getElementById('edit_url').value;
+    if (edit_title === "" || edit_url === "") return;
+
+    edit_webpage(cur_id, edit_title, edit_url);
+    set_current_webpage(-1, -1, "", "");
 }
 
-function onclick_remove(view, parent) {
-    
+function onclick_remove() {
+    remove_webpage(cur_id);
+    set_current_webpage(-1, -1, "", "");
 }
 
 function onclick_list_item(view, idx, id, title, url) {
-    item_list.children[cur_idx].classList.remove('active');
     view.classList.add('active');
-    cur_idx = idx;
-
-    cur_id = id;
-    cur_title = title;
-    cur_url = url;
-
-    main_title.innerHTML = title;
-    main_url.href = url;
-    main_url.innerHTML = "새 창에서 보기";
+    set_current_webpage(idx, id, title, url);
 }
 
 function match_media(cond) {
@@ -103,25 +230,21 @@ function match_media(cond) {
         left_menu.style.visibility = "hidden";
         left_menu.style.position = "absolute";
             left_menu.style.top = "50px";
-        left_menu.style.float = "left";
         main.style.width = "100%";
         main.style.position = "absolute";
             main.style.top = "50px";
-        main.style.float = "left";
     } else {
         left_menu_btn.style.display = "none";
         left_menu.style.visibility = "visible";
         left_menu.style.position = "static";
-        left_menu.style.float = "none";
         main.style.width = "75%";
         main.style.position = "static";
-        main.style.float = "none";
     }
 }
 
 
 /* server connection */
-function connect(type, dest, callback) {
+function connect(type, dest, args, callback) {
     let xmlhttp;
     if (window.XMLHttpRequest)
         xmlhttp = new XMLHttpRequest(); // code for modern browsers
@@ -133,12 +256,41 @@ function connect(type, dest, callback) {
     };
 
     xmlhttp.open(type, dest, true); //open url
-    xmlhttp.send();
+    if (args === null) {
+        xmlhttp.send();
+    } else {
+        xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xmlhttp.send(args);
+    }
 }
 
 function show_list() {
     const dest = `itemlist.php`;
-    connect("GET", dest, function(readyState, status, response) {
+    connect("GET", dest, null, function(readyState, status, response) {
+            if (readyState != 4 || status != 200) return;
+            item_list.innerHTML = response;
+        });
+}
+
+function add_webpage(title, url) {
+    const dest = `itemlist.php`;
+    connect("POST", dest, `title=${title}&url=${url}`, function(readyState, status, response) {
+            if (readyState != 4 || status != 200) return;
+            item_list.innerHTML = response;
+        });
+}
+
+function edit_webpage(id, title, url) {
+    const dest = `itemlist.php`;
+    connect("POST", dest, `id=${id}&title=${title}&url=${url}`, function(readyState, status, response) {
+            if (readyState != 4 || status != 200) return;
+            item_list.innerHTML = response;
+        });
+}
+
+function remove_webpage(id) {
+    const dest = `itemlist.php`;
+    connect("POST", dest, `id=${id}`, function(readyState, status, response) {
             if (readyState != 4 || status != 200) return;
             item_list.innerHTML = response;
         });

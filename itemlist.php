@@ -28,7 +28,7 @@ if (strlen($webpage_title) || strlen($webpage_url)) {
 	}
 }
 else if (strlen($webpage_id)) {
-	removeWebPage($webpage_id);
+	removeWebPage($connection, $webpage_id);
 }
 
 $query = "SELECT * FROM ".TABLE_NAME.";";
@@ -53,7 +53,7 @@ function addWebPage($connection, $title, $url) {
 	$t = mysqli_real_escape_string($connection, $title);
 	$u = mysqli_real_escape_string($connection, $url);
 
-	$query = "INSERT INTO ".TABLE_NAME." ('title', 'url') VALUES ('$t', '$u');";
+	$query = "INSERT INTO `".TABLE_NAME."` (`title`, `url`) VALUES ('$t', '$u');";
 
 	if(!mysqli_query($connection, $query)) echo("<p>Error adding data.</p>");
 }
@@ -62,13 +62,13 @@ function editWebPage($connection, $id, $title, $url) {
 	$t = mysqli_real_escape_string($connection, $title);
 	$u = mysqli_real_escape_string($connection, $url);
 
-	$query = "UPDATE ".TABLE_NAME." SET 'title'='$t', 'url'='$u' WHERE id = '$id';";
+	$query = "UPDATE `".TABLE_NAME."` SET `title`='$t', `url`='$u' WHERE `id` = '$id';";
 
 	if(!mysqli_query($connection, $query)) echo("<p>Error adding data.</p>");
 }
 
 function removeWebPage($connection, $id) {
-	$query = "DELETE FROM ".TABLE_NAME." WHERE id = '$id';";
+	$query = "DELETE FROM `".TABLE_NAME."` WHERE `id` = '$id';";
 
 	if(!mysqli_query($connection, $query)) echo("<p>Error deleting data.</p>");
 }
@@ -80,7 +80,7 @@ function verifyTable($connection) {
 		$query = "CREATE TABLE `".TABLE_NAME."` (
 			`id` int(11) not null auto_increment,
 			`title` varchar(255) not null,
-			`url` varchar(255) not null,
+			`url` varchar(511) not null,
 			primary key (`id`));";
 
 		if(!mysqli_query($connection, $query)) echo("<p>Error creating table.</p>");
