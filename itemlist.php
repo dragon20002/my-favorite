@@ -37,7 +37,7 @@ $result = mysqli_query($connection, $query);
 
 $i = 0;
 while($query_data = mysqli_fetch_row($result)) {
-	echo "<a href='$query_data[2]' target='content' class='list-group-item list-group-item-primary-action' onclick='onclick_list_item(this, $i, $query_data[0], \"$query_data[1]\", \"$query_data[2]\")'>$query_data[1]</a>";
+	echo "<a href='$query_data[2]' target='content' class='list-group-item list-group-item-primary-action' onclick='onclick_list_item(this, $i, $query_data[0], `$query_data[1]`, `$query_data[2]`)'>$query_data[1]</a>";
 	$i++;
 }
 
