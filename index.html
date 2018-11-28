@@ -238,9 +238,9 @@ function onclick_remove() {
 }
 
 function onclick_list_item(view, idx, id, title, url) {
-    view.classList.add('active');
     set_current_selected(idx, id, title, url);
     match_media(max_width_match);
+    view.classList.add('active');
 }
 
 function match_media(cond) {
