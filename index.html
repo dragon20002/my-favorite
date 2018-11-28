@@ -20,14 +20,28 @@
 html, body {
     height: 100%;
 }
-#item_list a {
+img.icon {
+    width: 24px;
+    height: 24px;
+}
+.sidebar {
+    height: 100%;
+    position: fixed!important;
+    z-index: 1;
+    overflow: auto;
+    padding-bottom: 75px;
+    background-color: white;
+}
+.sidebar a {
     font-size: 14px;
     height: 40px;
     overflow: hidden;
 }
-img.icon {
-    width: 24px;
-    height: 24px;
+.main {
+    padding-left: 15px;
+    padding-right: 15px;
+    margin-left: auto;
+    margin-right: auto;
 }
 </style>
 </head>
@@ -35,7 +49,7 @@ img.icon {
 <body>
 
 <nav class="navbar navbar-expand-md bg-primary">
-    <div id="left_menu_btn" class="btn btn-primary" onclick="toggle_list_menu()"><i class='fas fa-align-justify' style='font-size: 24px; color: white'></i></div>
+    <div id="sidebar_btn" class="btn btn-primary" onclick="toggle_list_menu()"><i class='fas fa-align-justify' style='font-size: 24px; color: white'></i></div>
     <button class="navbar-toggler btn btn-primary" type="button" data-toggle="collapse" data-target="#collapsibleNavbar"><i class='fas fa-ellipsis-v' style='font-size:24px; color: white'></i></button>
     <div class="collapse navbar-collapse" id="collapsibleNavbar">
         <ul class="navbar-nav">
@@ -52,16 +66,12 @@ img.icon {
     </div>
 </nav>
 
-<div class="row container-fluid">
-    <div id="left_menu" style="width: 25%; z-index: 5">
-        <div id="item_list" class="list-group"></div>
-    </div>
+<div id="sidebar" class="list-group sidebar"></div>
 
-    <div id="main" class="container" style="width: 75%">
-        <h2 style="height: 76px; overflow: hidden"><div id="main_title" align="center"></div></h2>
-        <a id="main_url" target="_blank" style="height: 21px"></a><br>
-        <iframe id="main_content" name="content" scrolling="yes" style="width: 100%" sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation" frameborder="0" allow="encrypted-media" allowfullscreen></iframe>
-    </div>
+<div id="main" class="main">
+    <h2 style="height: 76px; overflow: hidden"><div id="main_title" align="center"></div></h2>
+    <a id="main_url" target="_blank" style="height: 21px"></a><br>
+    <iframe id="main_content" name="content" scrolling="yes" style="width: 100%" sandbox="allow-forms allow-pointer-lock allow-same-origin allow-scripts allow-top-navigation" frameborder="0" allow="encrypted-media" allowfullscreen></iframe>
 </div>
 
 <!-- Modals -->
@@ -162,9 +172,8 @@ img.icon {
 
 
 <script type="text/javascript">
-const left_menu_btn = document.getElementById('left_menu_btn');
-const left_menu = document.getElementById('left_menu');
-const item_list = document.getElementById('item_list');
+const sidebar_btn = document.getElementById('sidebar_btn');
+const sidebar = document.getElementById('sidebar');
 const main = document.getElementById('main');
 const main_title = document.getElementById('main_title');
 const main_url = document.getElementById('main_url');
@@ -183,8 +192,8 @@ match_media(max_width_match); //apply now
 
 
 function set_current_selected(idx, id, title, url) {
-    if (cur_idx >= 0 && item_list.children[cur_idx] != null)
-        item_list.children[cur_idx].classList.remove('active');
+    if (cur_idx >= 0 && sidebar.children[cur_idx] != null)
+        sidebar.children[cur_idx].classList.remove('active');
 
     cur_idx = idx;
     cur_id = id;
@@ -201,10 +210,10 @@ function set_current_selected(idx, id, title, url) {
 
 /* event listener */
 function toggle_list_menu() {
-    if (left_menu.style.visibility === "visible") {
-        left_menu.style.visibility = "hidden";
+    if (sidebar.style.display === "block") {
+        sidebar.style.display = "none";
     } else {
-        left_menu.style.visibility = "visible";
+        sidebar.style.display = "block";
     }
 }
 
@@ -245,21 +254,19 @@ function onclick_list_item(view, idx, id, title, url) {
 
 function match_media(cond) {
     if (cond.matches) {
-        left_menu.style.width = "75%";
-        left_menu_btn.style.display = "block";
-        left_menu.style.visibility = "hidden";
-        left_menu.style.position = "absolute";
-            left_menu.style.top = "50px";
+        sidebar_btn.style.display = "block";
+        sidebar.style.display = "none";
+        sidebar.style.top = "50px";
+        sidebar.style.width = "75%";
         main.style.width = "100%";
-        // main.style.position = "absolute";
-        //     main.style.top = "50px";
+        main.style.marginLeft = "0%";
     } else {
-        left_menu.style.width = "25%";
-        left_menu_btn.style.display = "none";
-        left_menu.style.visibility = "visible";
-        left_menu.style.position = "static";
+        sidebar_btn.style.display = "none";
+        sidebar.style.display = "block";
+        sidebar.style.top = "60px";
+        sidebar.style.width = "25%";
         main.style.width = "75%";
-        // main.style.position = "static";
+        main.style.marginLeft = "25%";
     }
 
     let height = window.innerHeight
@@ -294,7 +301,7 @@ function show_list() {
     const dest = `itemlist.php`;
     connect("GET", dest, null, function(readyState, status, response) {
             if (readyState != 4 || status != 200) return;
-            item_list.innerHTML = response;
+            sidebar.innerHTML = response;
         });
 }
 
@@ -302,7 +309,7 @@ function add_webpage(title, url) {
     const dest = `itemlist.php`;
     connect("POST", dest, `title=${title}&url=${url}`, function(readyState, status, response) {
             if (readyState != 4 || status != 200) return;
-            item_list.innerHTML = response;
+            sidebar.innerHTML = response;
         });
 }
 
@@ -310,7 +317,7 @@ function edit_webpage(id, title, url) {
     const dest = `itemlist.php`;
     connect("POST", dest, `id=${id}&title=${title}&url=${url}`, function(readyState, status, response) {
             if (readyState != 4 || status != 200) return;
-            item_list.innerHTML = response;
+            sidebar.innerHTML = response;
         });
 }
 
@@ -318,7 +325,7 @@ function remove_webpage(id) {
     const dest = `itemlist.php`;
     connect("POST", dest, `id=${id}`, function(readyState, status, response) {
             if (readyState != 4 || status != 200) return;
-            item_list.innerHTML = response;
+            sidebar.innerHTML = response;
         });
 }
 
