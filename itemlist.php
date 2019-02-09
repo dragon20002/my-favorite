@@ -1,5 +1,5 @@
 <?php
-include "../inc/dbinfo.inc";
+include "../../inc/dbinfo.inc";
 define('TABLE_NAME', 'webpage');
 
 
